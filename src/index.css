@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Tema visual do Portal Argus — R&M Tecnologia.
+ *
+ * Cores da marca:
+ *   --primary → azul-marinho R&M  #0F2840  → 209 62% 15%
+ *   --brand   → laranja R&M       #FC5201  →  19 99% 50%
+ * Os demais tokens seguem o padrão shadcn/ui base "slate".
+ */
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 209 40% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 209 40% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 209 40% 12%;
+
+    --primary: 209 62% 15%;
+    --primary-foreground: 0 0% 100%;
+
+    --brand: 19 99% 50%;
+    --brand-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 94%;
+    --secondary-foreground: 209 47% 15%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 42%;
+
+    --accent: 210 40% 94%;
+    --accent-foreground: 209 47% 15%;
+
+    --destructive: 0 74% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 35%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 214 25% 88%;
+    --input: 214 25% 84%;
+    --ring: 19 99% 50%;
+
+    --radius: 0.6rem;
+  }
+
+  .dark {
+    --background: 209 45% 8%;
+    --foreground: 210 40% 96%;
+
+    --card: 209 42% 11%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 209 42% 11%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 210 40% 96%;
+    --primary-foreground: 209 62% 15%;
+
+    --brand: 19 95% 54%;
+    --brand-foreground: 0 0% 100%;
+
+    --secondary: 209 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+
+    --muted: 209 33% 17%;
+    --muted-foreground: 215 20% 62%;
+
+    --accent: 209 33% 17%;
+    --accent-foreground: 210 40% 96%;
+
+    --destructive: 0 63% 40%;
+    --destructive-foreground: 210 40% 96%;
+
+    --success: 142 60% 42%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 209 30% 20%;
+    --input: 209 30% 22%;
+    --ring: 19 95% 54%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+}
