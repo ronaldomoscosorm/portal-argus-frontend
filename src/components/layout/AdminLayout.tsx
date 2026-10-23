@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { AppWindow, Home, Users } from "lucide-react";
+import { AppWindow, Building2, Home, Users } from "lucide-react";
 import { AppShell } from "./AppShell";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +36,9 @@ export function AdminLayout({
           </NavLink>
           <NavLink to="/admin/users" className={subNavClass}>
             <Users className="h-4 w-4" /> Usuários
+          </NavLink>
+          <NavLink to="/admin/clientes" className={subNavClass}>
+            <Building2 className="h-4 w-4" /> Clientes e sites
           </NavLink>
         </nav>
       </div>

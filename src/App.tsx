@@ -14,6 +14,8 @@ import { AppsListPage } from "@/pages/admin/AppsListPage";
 import { AppDetailPage } from "@/pages/admin/AppDetailPage";
 import { UsersListPage } from "@/pages/admin/UsersListPage";
 import { UserDetailPage } from "@/pages/admin/UserDetailPage";
+import { ClientesListPage } from "@/pages/admin/ClientesListPage";
+import { ClienteDetailPage } from "@/pages/admin/ClienteDetailPage";
 
 function App() {
   return (
@@ -81,6 +83,23 @@ function App() {
           element={
             <AdminRoute>
               <UserDetailPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/clientes"
+          element={
+            <AdminRoute>
+              <ClientesListPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/clientes/:id"
+          element={
+            <AdminRoute>
+              <ClienteDetailPage />
             </AdminRoute>
           }
         />

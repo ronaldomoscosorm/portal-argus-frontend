@@ -367,7 +367,27 @@ export interface CorporateClientDto {
   description?: string | null;
   descricao?: string | null;
   cnpj?: string | null;
+  /** Código único (perfil do ClearID). Imutável após a criação. */
+  code?: string | null;
+  /** AccountId do ClearID (GUID), quando conhecido. */
+  externalAccountId?: string | null;
+  isActive?: boolean | null;
+  /** Quantidade de sites ativos. */
+  siteCount?: number | null;
+  updatedAtUtc?: string | null;
 }
+
+export interface CreateCorporateClientRequest {
+  code: string;
+  name: string;
+  externalAccountId: string | null;
+  isActive: boolean;
+}
+
+export type UpdateCorporateClientRequest = Omit<CreateCorporateClientRequest, "code">;
+
+/** Escopo do site no CorporateData. */
+export type CorporateSiteScope = "All" | "ClearIdOnly" | "ClientesOnly" | "AplicativosOnly";
 
 /** Site (dentro de um cliente) do CorporateData. */
 export interface CorporateSiteDto {
@@ -379,6 +399,26 @@ export interface CorporateSiteDto {
   description?: string | null;
   descricao?: string | null;
   isActive?: boolean | null;
+  sigla?: string | null;
+  timeZoneId?: string | null;
+  regionId?: string | null;
+  scope?: CorporateSiteScope | null;
+}
+
+export interface UpdateCorporateSiteRequest {
+  name: string;
+  sigla: string | null;
+  description: string | null;
+  timeZoneId: string | null;
+  regionId: string | null;
+  scope: CorporateSiteScope;
+  isActive: boolean;
+}
+
+export interface CreateCorporateSiteRequest extends UpdateCorporateSiteRequest {
+  clienteId: number;
+  /** Em branco = site fora do ClearID (a API gera um identificador "manual-…"). */
+  externalId: string | null;
 }
 
 // ----------------------------------------------------------------------------
