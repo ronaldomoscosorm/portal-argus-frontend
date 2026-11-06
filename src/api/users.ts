@@ -1,7 +1,10 @@
 import { apiClient } from "./client";
 import type {
   AssignRoleRequest,
+  BulkCreateUsersRequest,
+  BulkCreateUsersResult,
   CreateUserRequest,
+  SendPasswordResetLinksResult,
   UpdateUserRequest,
   UserDto,
 } from "./types";
@@ -40,8 +43,13 @@ export async function assignRole(
  * Desatribui uma role global do usuário. Backend recusa com 409 se for a
  * última role Administrator do sistema.
  */
-export async function unassignRole(userId: number, roleName: string): Promise<void> {
-  await apiClient.delete(`/api/users/${userId}/roles/${encodeURIComponent(roleName)}`);
+export async function unassignRole(
+  userId: number,
+  roleName: string,
+): Promise<void> {
+  await apiClient.delete(
+    `/api/users/${userId}/roles/${encodeURIComponent(roleName)}`,
+  );
 }
 
 /**
@@ -50,4 +58,31 @@ export async function unassignRole(userId: number, roleName: string): Promise<vo
  */
 export async function sendPasswordResetLink(userId: number): Promise<void> {
   await apiClient.post(`/api/users/${userId}/send-password-reset-link`);
+}
+
+/**
+ * Agenda o envio do link de senha para vários usuários; os e-mails saem em segundo plano.
+ */
+export async function sendPasswordResetLinks(
+  userIds: number[],
+): Promise<SendPasswordResetLinksResult> {
+  const { data } = await apiClient.post<SendPasswordResetLinksResult>(
+    "/api/users/send-password-reset-link",
+    { userIds },
+  );
+  return data;
+}
+
+/**
+ * Cadastro em lote: cria cada usuário com suas roles globais e aplicativos (com perfil).
+ * Cada item é independente — o resultado detalha criados e rejeitados.
+ */
+export async function bulkCreateUsers(
+  payload: BulkCreateUsersRequest,
+): Promise<BulkCreateUsersResult> {
+  const { data } = await apiClient.post<BulkCreateUsersResult>(
+    "/api/users/bulk",
+    payload,
+  );
+  return data;
 }

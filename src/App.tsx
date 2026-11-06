@@ -14,6 +14,7 @@ import { AppsListPage } from "@/pages/admin/AppsListPage";
 import { AppDetailPage } from "@/pages/admin/AppDetailPage";
 import { UsersListPage } from "@/pages/admin/UsersListPage";
 import { UserDetailPage } from "@/pages/admin/UserDetailPage";
+import { UsersBulkPage } from "@/pages/admin/UsersBulkPage";
 import { ClientesListPage } from "@/pages/admin/ClientesListPage";
 import { ClienteDetailPage } from "@/pages/admin/ClienteDetailPage";
 
@@ -75,6 +76,14 @@ function App() {
           element={
             <AdminRoute>
               <UsersListPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users/bulk"
+          element={
+            <AdminRoute>
+              <UsersBulkPage />
             </AdminRoute>
           }
         />

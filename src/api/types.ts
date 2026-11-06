@@ -384,10 +384,14 @@ export interface CreateCorporateClientRequest {
   isActive: boolean;
 }
 
-export type UpdateCorporateClientRequest = Omit<CreateCorporateClientRequest, "code">;
+export type UpdateCorporateClientRequest = Omit<
+  CreateCorporateClientRequest,
+  "code"
+>;
 
 /** Escopo do site no CorporateData. */
-export type CorporateSiteScope = "All" | "ClearIdOnly" | "ClientesOnly" | "AplicativosOnly";
+export type CorporateSiteScope =
+  "All" | "ClearIdOnly" | "ClientesOnly" | "AplicativosOnly";
 
 /** Site (dentro de um cliente) do CorporateData. */
 export interface CorporateSiteDto {
@@ -443,4 +447,64 @@ export interface ApplicationSiteItem {
 
 export interface SetApplicationSitesRequest {
   sites: ApplicationSiteItem[];
+}
+
+// ----------------------------------------------------------------------------
+// Administração — Cadastro em lote de usuários (POST /api/users/bulk)
+// ----------------------------------------------------------------------------
+
+/** Aplicativo concedido a um usuário do lote, com o perfil (papel) no app. */
+export interface BulkUserApplication {
+  applicationCode: string;
+  profile?: string | null;
+}
+
+/** Um usuário do lote. */
+export interface BulkUserItem {
+  name: string;
+  userName: string;
+  /** Usada só quando `sendResetLink` do lote é `false`. */
+  password?: string | null;
+  phoneNumber?: string | null;
+  /** Vazio = usa o `defaultMfaMethod` do lote. */
+  mfaMethod?: MfaMethod | null;
+  isADEnabled?: boolean;
+  roles: string[];
+  applications: BulkUserApplication[];
+  /** Sites do usuário: `clientId:siteId` quando resolvido no catálogo, senão o texto digitado. */
+  sites: string[];
+}
+
+export interface BulkCreateUsersRequest {
+  users: BulkUserItem[];
+  sendResetLink: boolean;
+  defaultMfaMethod?: MfaMethod;
+}
+
+export interface BulkCreateUserItemResult {
+  index: number;
+  userName: string | null;
+  success: boolean;
+  userId: number | null;
+  error: string | null;
+  warnings: string[];
+  roles: string[];
+  applications: string[];
+  /** Sites vinculados, no formato `Cliente:Site`. */
+  sites: string[];
+  /** E-mail com o link de senha agendado para envio em segundo plano. */
+  resetLinkQueued: boolean;
+}
+
+export interface SendPasswordResetLinksResult {
+  requested: number;
+  queued: number;
+  notFound: number[];
+}
+
+export interface BulkCreateUsersResult {
+  total: number;
+  created: number;
+  failed: number;
+  items: BulkCreateUserItemResult[];
 }
