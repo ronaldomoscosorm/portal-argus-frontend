@@ -10,12 +10,13 @@ import {
 import { fetchMe } from "@/api/me";
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/api/client";
 import type { MeDto } from "@/api/types";
+import { isPortalAdminUser } from "@/lib/portalAdmin";
 
 interface AuthContextValue {
   user: MeDto | null;
   loading: boolean;
   isAuthenticated: boolean;
-  /** Verdadeiro se o usuário tem a role global `Administrator`. */
+  /** Verdadeiro se o usuário tem o app `portal` com perfil `Administrator` (console admin). */
   isAdmin: boolean;
   setSession: (accessToken: string, refreshToken: string | null) => Promise<void>;
   logout: () => void;
@@ -84,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       isAuthenticated: user !== null,
-      isAdmin: user?.roles?.includes("Administrator") ?? false,
+      isAdmin: isPortalAdminUser(user),
       setSession,
       logout,
       refreshUser: loadUser,

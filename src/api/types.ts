@@ -404,6 +404,7 @@ export interface CorporateSiteDto {
   descricao?: string | null;
   isActive?: boolean | null;
   sigla?: string | null;
+  apelido?: string | null;
   timeZoneId?: string | null;
   regionId?: string | null;
   scope?: CorporateSiteScope | null;
@@ -412,6 +413,7 @@ export interface CorporateSiteDto {
 export interface UpdateCorporateSiteRequest {
   name: string;
   sigla: string | null;
+  apelido: string | null;
   description: string | null;
   timeZoneId: string | null;
   regionId: string | null;

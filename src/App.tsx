@@ -46,7 +46,7 @@ function App() {
           }
         />
 
-        {/* Administração (role Administrator) */}
+        {/* Administração (app portal com perfil Administrator) */}
         <Route
           path="/admin"
           element={

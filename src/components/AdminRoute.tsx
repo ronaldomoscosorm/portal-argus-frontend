@@ -4,7 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 import { FullPageLoader } from "@/components/PageState";
 
 /**
- * Guarda das rotas administrativas: exige autenticação E a role `Administrator`.
+ * Guarda das rotas administrativas: exige autenticação E o app `portal` com perfil
+ * `Administrator` (ver `lib/portalAdmin`).
  * Não-admin é redirecionado para o painel (/). A segurança real é garantida no
  * backend; aqui apenas escondemos as telas.
  */
@@ -16,7 +17,7 @@ export function AdminRoute({ children }: { children: ReactNode }) {
     loading,
     isAuthenticated,
     isAdmin,
-    roles: user?.roles,
+    apps: user?.apps?.map((a) => `${a.code}:${a.profile ? JSON.stringify(a.profile) : "-"}`),
   });
 
   if (loading) return <FullPageLoader />;
@@ -27,7 +28,7 @@ export function AdminRoute({ children }: { children: ReactNode }) {
   }
   if (!isAdmin) {
     // eslint-disable-next-line no-console
-    console.warn("[portal] AdminRoute — sem role Administrator → /", { roles: user?.roles });
+    console.warn("[portal] AdminRoute — sem perfil portal:Administrator → /");
     return <Navigate to="/" replace />;
   }
 

@@ -36,11 +36,6 @@ export function getRolesFromToken(token: string | null | undefined): string[] {
   return Array.isArray(raw) ? raw : [raw];
 }
 
-/** Verdadeiro se o token carrega a role global `Administrator`. */
-export function tokenHasAdminRole(token: string | null | undefined): boolean {
-  return getRolesFromToken(token).includes("Administrator");
-}
-
 /**
  * Aceita apenas returnUrl "seguro":
  *   - path relativo começando com "/" (mesmo host — evita `//host` que é

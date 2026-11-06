@@ -98,10 +98,11 @@ function RolesSection({ user }: { user: UserDto }) {
       <CardHeader>
         <CardTitle>Acesso ao console admin</CardTitle>
         <p className="mt-1 text-sm text-muted-foreground">
-          <strong>Administrator</strong> acessa o console de administração do Portal.{" "}
-          <strong>User</strong> é usuário comum — só vê as aplicações vinculadas. Para
-          definir o papel dentro de cada aplicativo (recepcionista, portaria, etc.),
-          use a seção <em>Aplicativos &amp; perfis</em> abaixo.
+          O console de administração do Portal é liberado pelo aplicativo{" "}
+          <strong>Portal Argus</strong> com o perfil <strong>Administrator</strong>, na seção{" "}
+          <em>Aplicativos &amp; perfis</em> abaixo — a role global <strong>Administrator</strong>{" "}
+          e os perfis de administrador de outros aplicativos não dão esse acesso. Use a mesma
+          seção para definir o papel dentro de cada aplicativo (recepcionista, portaria, etc.).
         </p>
       </CardHeader>
       <CardContent className="space-y-4">

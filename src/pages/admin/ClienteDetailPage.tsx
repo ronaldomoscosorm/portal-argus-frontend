@@ -141,6 +141,7 @@ export function ClienteDetailPage() {
                   <TableRow>
                     <TableHead>Nome</TableHead>
                     <TableHead className="w-24">Sigla</TableHead>
+                    <TableHead className="w-40">Apelido</TableHead>
                     <TableHead>Identificador externo</TableHead>
                     <TableHead className="w-28">Origem</TableHead>
                     <TableHead className="w-44">Escopo</TableHead>
@@ -160,6 +161,7 @@ export function ClienteDetailPage() {
                         )}
                       </TableCell>
                       <TableCell>{site.sigla || "—"}</TableCell>
+                      <TableCell>{site.apelido || "—"}</TableCell>
                       <TableCell className="max-w-[18rem] truncate font-mono text-xs text-muted-foreground">
                         {site.externalId}
                       </TableCell>

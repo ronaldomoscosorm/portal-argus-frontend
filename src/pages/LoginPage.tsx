@@ -6,7 +6,8 @@ import { useAuth } from "@/context/AuthContext";
 import type { MfaMethod, OtpChannel } from "@/api/types";
 import { toApiErrorMessage } from "@/api/client";
 import { toQrSrc } from "@/lib/labels";
-import { isSafeReturnUrl, tokenHasAdminRole } from "@/lib/jwt";
+import { isSafeReturnUrl } from "@/lib/jwt";
+import { tokenIsPortalAdmin } from "@/lib/portalAdmin";
 import { AuthShell } from "@/components/layout/AuthShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,7 +89,7 @@ export function LoginPage() {
 
     const returnUrl = searchParams.get("returnUrl");
     const returnUrlSafe = isSafeReturnUrl(returnUrl);
-    const isAdmin = tokenHasAdminRole(token);
+    const isAdmin = tokenIsPortalAdmin(token);
     // eslint-disable-next-line no-console
     console.log("[portal] decisão pós-login", {
       returnUrl,

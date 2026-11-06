@@ -42,6 +42,7 @@ type FormState = {
   externalId: string;
   name: string;
   sigla: string;
+  apelido: string;
   description: string;
   timeZoneId: string;
   regionId: string;
@@ -53,6 +54,7 @@ const emptyForm: FormState = {
   externalId: "",
   name: "",
   sigla: "",
+  apelido: "",
   description: "",
   timeZoneId: "",
   regionId: "",
@@ -78,6 +80,7 @@ export function SiteFormDialog({ open, onOpenChange, clienteId, site }: Props) {
               externalId: site.externalId ?? "",
               name: site.name ?? "",
               sigla: site.sigla ?? "",
+              apelido: site.apelido ?? "",
               description: site.description ?? "",
               timeZoneId: site.timeZoneId ?? "",
               regionId: site.regionId ?? "",
@@ -97,6 +100,7 @@ export function SiteFormDialog({ open, onOpenChange, clienteId, site }: Props) {
       const base = {
         name: form.name.trim(),
         sigla: form.sigla.trim() || null,
+        apelido: form.apelido.trim() || null,
         description: form.description.trim() || null,
         timeZoneId: form.timeZoneId.trim() || null,
         regionId: form.regionId.trim() || null,
@@ -134,7 +138,7 @@ export function SiteFormDialog({ open, onOpenChange, clienteId, site }: Props) {
           <DialogTitle>{isEdit ? "Editar site" : "Novo site"}</DialogTitle>
           <DialogDescription>
             {fromClearId
-              ? "Site espelhado do ClearID: nome, descrição, fuso, região e status são sobrescritos a cada sincronização. A sigla e o escopo são preservados."
+              ? "Site espelhado do ClearID: nome, descrição, fuso, região e status são sobrescritos a cada sincronização. A sigla, o apelido e o escopo são preservados."
               : isEdit
                 ? "O identificador externo é imutável. Ajuste os demais dados do site."
                 : "Cadastre um site para este cliente."}
@@ -190,6 +194,18 @@ export function SiteFormDialog({ open, onOpenChange, clienteId, site }: Props) {
                 disabled={mutation.isPending}
               />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="site-apelido">Apelido</Label>
+            <Input
+              id="site-apelido"
+              value={form.apelido}
+              onChange={(e) => set("apelido", e.target.value)}
+              placeholder="Alphaville"
+              maxLength={100}
+              disabled={mutation.isPending}
+            />
           </div>
 
           <div className="space-y-1.5">
