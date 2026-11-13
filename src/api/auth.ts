@@ -60,3 +60,12 @@ export async function resetPasswordWithToken(
 ): Promise<void> {
   await apiClient.post("/api/Auth/reset-password", payload);
 }
+
+/** Apaga o cookie SSO no BFF (POST /api/auth/logout). Não lança: o logout local segue mesmo se falhar. */
+export async function logoutSso(): Promise<void> {
+  try {
+    await apiClient.post("/api/auth/logout");
+  } catch {
+    /* cookie pode já ter expirado; segue para o login */
+  }
+}

@@ -11,13 +11,6 @@ import type {
   UserSiteItem,
 } from "@/api/types";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -86,26 +79,31 @@ export function UserSitesSection({ userId }: Props) {
       siteCode: s.siteCode,
     }));
 
-  const [pairKey, setPairKey] = useState<string>("");
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const catalogByKey = useMemo(() => {
     const map = new Map<string, ApplicationSiteDto>();
     for (const s of catalogQuery.data ?? []) map.set(`${s.clientId}::${s.siteId}`, s);
     return map;
   }, [catalogQuery.data]);
 
-  const addSite = () => {
-    if (!pairKey) return;
-    if (rows.some((r) => `${r.clientCode}::${r.siteCode}` === pairKey)) {
-      toast.error("Esse site já está na lista.");
-      return;
+  const toggleKey = (key: string) =>
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+
+  const addSelected = () => {
+    const existing = new Set(rows.map((r) => `${r.clientCode}::${r.siteCode}`));
+    const added: UserSiteItem[] = [];
+    for (const key of selectedKeys) {
+      const item = catalogByKey.get(key);
+      if (!item || existing.has(key)) continue;
+      added.push({ clientCode: String(item.clientId), siteCode: String(item.siteId) });
     }
-    const item = catalogByKey.get(pairKey);
-    if (!item) return;
-    setPending([
-      ...rows,
-      { clientCode: String(item.clientId), siteCode: String(item.siteId) },
-    ]);
-    setPairKey("");
+    if (added.length > 0) setPending([...rows, ...added]);
+    setSelectedKeys(new Set());
   };
 
   const removeAt = (idx: number) =>
@@ -123,13 +121,21 @@ export function UserSitesSection({ userId }: Props) {
     onError: (err) => toast.error(toApiErrorMessage(err, "Falha ao salvar os sites.")),
   });
 
-  const availableInDropdown = useMemo(
+  const siteText = (s: ApplicationSiteDto) =>
+    `${s.clientName || `Cliente ${s.clientId}`} — ${s.siteName || `Site ${s.siteId}`}`;
+
+  const availableSites = useMemo(
     () =>
-      (catalogQuery.data ?? []).filter(
-        (s) => !rows.some((r) => r.clientCode === String(s.clientId) && r.siteCode === String(s.siteId)),
-      ),
+      (catalogQuery.data ?? [])
+        .filter(
+          (s) => !rows.some((r) => r.clientCode === String(s.clientId) && r.siteCode === String(s.siteId)),
+        )
+        .sort((a, b) => siteText(a).localeCompare(siteText(b), "pt-BR", { sensitivity: "base" })),
     [catalogQuery.data, rows],
   );
+  const selectedCount = availableSites.filter((s) =>
+    selectedKeys.has(`${s.clientId}::${s.siteId}`),
+  ).length;
 
   const labelFor = (r: UserSiteItem) => {
     const item = catalogByKey.get(`${r.clientCode}::${r.siteCode}`);
@@ -168,38 +174,52 @@ export function UserSitesSection({ userId }: Props) {
           <ErrorState onRetry={() => assigned.refetch()} />
         ) : (
           <>
-            <div className="mb-3 flex gap-2">
-              <div className="flex-1">
-                <Select value={pairKey} onValueChange={setPairKey}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Escolha um site (cliente + site)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableInDropdown.length === 0 ? (
-                      <SelectItem value="__empty" disabled>
-                        {catalogQuery.data?.length
-                          ? "Todos os sites disponíveis já estão atribuídos"
-                          : "Nenhum site vinculado aos aplicativos"}
-                      </SelectItem>
-                    ) : (
-                      availableInDropdown.map((s) => (
-                        <SelectItem key={`${s.clientId}-${s.siteId}`} value={`${s.clientId}::${s.siteId}`}>
-                          {s.clientName || `Cliente ${s.clientId}`} — {s.siteName || `Site ${s.siteId}`}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
+            <div className="mb-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium">
+                  Sites disponíveis{" "}
+                  <span className="text-xs text-muted-foreground">
+                    ({selectedCount} selecionado{selectedCount === 1 ? "" : "s"})
+                  </span>
+                </span>
+                <Button variant="outline" onClick={addSelected} disabled={selectedCount === 0}>
+                  <Plus className="h-4 w-4" /> Adicionar
+                  {selectedCount > 0 ? ` (${selectedCount})` : ""}
+                </Button>
               </div>
-              <Button variant="outline" onClick={addSite} disabled={!pairKey}>
-                <Plus className="h-4 w-4" /> Adicionar
-              </Button>
+              {availableSites.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {catalogQuery.data?.length
+                    ? "Todos os sites disponíveis já estão atribuídos."
+                    : "Nenhum site vinculado aos aplicativos."}
+                </p>
+              ) : (
+                <div className="max-h-64 overflow-y-auto rounded-md border border-border">
+                  {availableSites.map((s) => {
+                    const key = `${s.clientId}::${s.siteId}`;
+                    return (
+                      <label
+                        key={key}
+                        className="flex cursor-pointer items-center gap-2 border-b border-border px-3 py-2 last:border-b-0 hover:bg-muted/40"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedKeys.has(key)}
+                          onChange={() => toggleKey(key)}
+                          className="h-4 w-4 accent-primary"
+                        />
+                        <span className="text-sm">{siteText(s)}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {rows.length === 0 ? (
               <EmptyState
                 title="Sem sites atribuídos"
-                description="Escolha um par (cliente + site) do dropdown acima e clique em Adicionar."
+                description="Marque um ou mais sites na lista acima e clique em Adicionar."
               />
             ) : (
               <div className="rounded-lg border border-border">
