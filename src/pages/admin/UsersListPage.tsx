@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDown,
   ArrowUp,
@@ -9,13 +9,15 @@ import {
   Pencil,
   Plus,
   Search,
+  Trash2,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
-import { listUsers, sendPasswordResetLinks } from "@/api/users";
+import { deleteUser, listUsers, sendPasswordResetLinks } from "@/api/users";
 import { toApiErrorMessage } from "@/api/client";
 import type { UserDto } from "@/api/types";
 import { mfaMethodLabel } from "@/lib/labels";
+import { useAuth } from "@/context/AuthContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { UserFormDialog } from "@/components/admin/UserFormDialog";
@@ -64,6 +66,9 @@ export function UsersListPage() {
   });
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+  const [deleting, setDeleting] = useState<UserDto | null>(null);
+  const { user: me } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["users"],
@@ -130,6 +135,17 @@ export function UsersListPage() {
       toast.error(
         toApiErrorMessage(err, "Não foi possível agendar os e-mails."),
       ),
+  });
+
+  const removeUser = useMutation({
+    mutationFn: (u: UserDto) => deleteUser(u.id),
+    onSuccess: async (_res, u) => {
+      toast.success(`Usuário ${u.name ?? u.userName} excluído.`);
+      toggleOne(u.id, false);
+      await queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (err) =>
+      toast.error(toApiErrorMessage(err, "Não foi possível excluir o usuário.")),
   });
 
   const sortBy = (key: SortKey) =>
@@ -340,6 +356,16 @@ export function UsersListPage() {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
+                        {u.id !== me?.id && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleting(u)}
+                            title="Excluir"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -368,6 +394,22 @@ export function UsersListPage() {
             () => undefined,
             () => undefined,
           )
+        }
+      />
+
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title="Excluir usuário"
+        description={`${deleting?.name ?? deleting?.userName ?? ""} (${deleting?.userName ?? ""}) será excluído em definitivo, com suas roles, aplicativos, sites e sessões. Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onConfirm={() =>
+          deleting
+            ? removeUser.mutateAsync(deleting).then(
+                () => undefined,
+                () => undefined,
+              )
+            : undefined
         }
       />
     </AdminLayout>

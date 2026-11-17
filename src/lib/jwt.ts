@@ -36,12 +36,25 @@ export function getRolesFromToken(token: string | null | undefined): string[] {
   return Array.isArray(raw) ? raw : [raw];
 }
 
+/** Normaliza a lista de domínios: minúsculas, sem ponto inicial e sem vazios. */
+export function parseAllowedDomains(raw: string | undefined): string[] {
+  return (raw ?? "")
+    .split(",")
+    .map((d) => d.trim().toLowerCase().replace(/^\.+/, ""))
+    .filter(Boolean);
+}
+
+const DEFAULT_RETURN_DOMAINS = ["portalargus.com.br", "rmtecho.com.br"];
+const configuredDomains = parseAllowedDomains(import.meta.env.VITE_ALLOWED_RETURN_DOMAINS);
+const ALLOWED_RETURN_DOMAINS = configuredDomains.length ? configuredDomains : DEFAULT_RETURN_DOMAINS;
+
 /**
  * Aceita apenas returnUrl "seguro":
  *   - path relativo começando com "/" (mesmo host — evita `//host` que é
  *     protocolo-relativo e permitiria redirect externo)
  *   - URL absoluta cujo hostname:
- *       - termina em `.rmtecho.com.br` (ou é ele mesmo) — apps de produção
+ *       - é um dos domínios permitidos ou subdomínio deles — apps de produção
+ *         (lista em VITE_ALLOWED_RETURN_DOMAINS, separada por vírgula)
  *       - é `localhost` ou `127.0.0.1` — apps em desenvolvimento local
  *         (não permite alcance externo: localhost sempre resolve na máquina
  *         do próprio usuário)
@@ -49,7 +62,10 @@ export function getRolesFromToken(token: string | null | undefined): string[] {
  * Blindagem contra open-redirect: qualquer coisa fora dessas formas é
  * rejeitada e o LoginPage aplica a regra de pós-login padrão.
  */
-export function isSafeReturnUrl(returnUrl: string | null | undefined): boolean {
+export function isSafeReturnUrl(
+  returnUrl: string | null | undefined,
+  allowedDomains: string[] = ALLOWED_RETURN_DOMAINS,
+): boolean {
   if (!returnUrl) return false;
   if (returnUrl.startsWith("//")) return false;
   if (returnUrl.startsWith("/")) return true;
@@ -57,7 +73,7 @@ export function isSafeReturnUrl(returnUrl: string | null | undefined): boolean {
   try {
     const url = new URL(returnUrl);
     const host = url.hostname.toLowerCase();
-    if (host === "rmtecho.com.br" || host.endsWith(".rmtecho.com.br")) return true;
+    if (allowedDomains.some((d) => host === d || host.endsWith(`.${d}`))) return true;
     if (host === "localhost" || host === "127.0.0.1") return true;
     return false;
   } catch {

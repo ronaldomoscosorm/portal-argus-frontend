@@ -31,8 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUser = useCallback(async () => {
     const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-    // eslint-disable-next-line no-console
-    console.log("[portal] AuthContext.loadUser — token no localStorage?", Boolean(token));
     if (!token) {
       setUser(null);
       setLoading(false);
@@ -40,16 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     try {
       const me = await fetchMe();
-      // eslint-disable-next-line no-console
-      console.log("[portal] fetchMe OK", {
-        userName: me?.userName,
-        roles: me?.roles,
-        appsCount: me?.apps?.length,
-      });
       setUser(me);
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error("[portal] fetchMe FALHOU — limpando sessão", err);
+      console.error(
+        "[portal] fetchMe falhou — limpando sessão:",
+        err instanceof Error ? err.message : String(err),
+      );
       setUser(null);
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);

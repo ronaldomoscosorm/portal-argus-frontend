@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_AUTH_API_URL: string;
+  readonly VITE_ALLOWED_RETURN_DOMAINS?: string;
   readonly VITE_CLIENT_NAME: string;
   readonly VITE_BRAND_PRIMARY_HEX: string;
 }

@@ -62,12 +62,6 @@ export function LoginPage() {
   useEffect(() => {
     if (authLoading || !isAuthenticated) return;
     const rUrl = searchParams.get("returnUrl");
-    // eslint-disable-next-line no-console
-    console.log("[portal] LoginPage — já autenticado", {
-      returnUrl: rUrl,
-      returnUrlSafe: isSafeReturnUrl(rUrl),
-      isAdmin,
-    });
     if (isSafeReturnUrl(rUrl)) {
       window.location.href = rUrl!;
       return;
@@ -76,27 +70,11 @@ export function LoginPage() {
   }, [authLoading, isAuthenticated, isAdmin, searchParams, navigate]);
 
   const finalize = async (token: string, refreshToken: string | null) => {
-    // eslint-disable-next-line no-console
-    console.log("[portal] finalize chamado", {
-      tokenPresente: Boolean(token),
-      tokenPreview: token ? `${token.slice(0, 20)}…(${token.length} chars)` : null,
-      refreshPresente: Boolean(refreshToken),
-    });
-
     await setSession(token, refreshToken);
-    // eslint-disable-next-line no-console
-    console.log("[portal] setSession OK — token gravado no localStorage");
 
     const returnUrl = searchParams.get("returnUrl");
     const returnUrlSafe = isSafeReturnUrl(returnUrl);
     const isAdmin = tokenIsPortalAdmin(token);
-    // eslint-disable-next-line no-console
-    console.log("[portal] decisão pós-login", {
-      returnUrl,
-      returnUrlSafe,
-      isAdmin,
-      destinoPrevisto: returnUrlSafe ? returnUrl : isAdmin ? "/admin/apps" : "/",
-    });
 
     if (returnUrlSafe) {
       window.location.href = returnUrl!;
@@ -112,17 +90,7 @@ export function LoginPage() {
     setBusy(true);
     try {
       const result = await login({ userName: userName.trim(), password });
-      // eslint-disable-next-line no-console
-      console.log("[portal] login() retornou", {
-        success: result.success,
-        mfaRequired: result.mfaRequired,
-        temToken: Boolean(result.token),
-        mensagem: result.message,
-        keys: Object.keys(result ?? {}),
-      });
       if (!result.success) {
-        // eslint-disable-next-line no-console
-        console.warn("[portal] login com success=false — abortando", result);
         setError(friendly(result.message, "Usuário ou senha inválidos."));
         return;
       }
@@ -147,13 +115,17 @@ export function LoginPage() {
       if (result.token) {
         await finalize(result.token, result.refreshToken);
       } else {
-        // eslint-disable-next-line no-console
-        console.error("[portal] success=true mas SEM token — response inesperado", result);
+        console.error(
+          "[portal] login com sucesso mas sem token — campos recebidos:",
+          Object.keys(result ?? {}),
+        );
         setError("Login inconsistente: servidor não devolveu o token de acesso.");
       }
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error("[portal] exceção no submit do login", err);
+      console.error(
+        "[portal] exceção no submit do login:",
+        err instanceof Error ? err.message : String(err),
+      );
       setError(toApiErrorMessage(err));
     } finally {
       setBusy(false);

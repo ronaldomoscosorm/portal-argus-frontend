@@ -32,6 +32,14 @@ export async function updateUser(
   return data;
 }
 
+/**
+ * Exclui o usuário em definitivo. O backend recusa com 409 o próprio usuário logado
+ * e o último administrador.
+ */
+export async function deleteUser(id: number): Promise<void> {
+  await apiClient.delete(`/api/users/${id}`);
+}
+
 export async function assignRole(
   userId: number,
   payload: AssignRoleRequest,

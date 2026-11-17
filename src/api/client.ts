@@ -92,7 +92,7 @@ export const apiClient = axios.create({
   headers: { "Content-Type": "application/json" },
   timeout: 30_000,
   // Essencial para o SSO: envia/recebe o cookie rmtecho_token nas chamadas
-  // cross-origin (portalargus.rmtecho.com.br -> portal.rmtecho.com.br). Sem isso
+  // cross-origin (portalargus.com.br -> portalmfa.portalargus.com.br). Sem isso
   // o browser descarta o Set-Cookie da resposta de login.
   withCredentials: true,
 });
@@ -111,21 +111,9 @@ apiClient.interceptors.response.use(
     const url = (response.config.url ?? "").toLowerCase();
     const isAuth = AUTH_MERGE_SUFFIXES.some((s) => url.endsWith(s));
 
-    if (isAuth) {
-      // eslint-disable-next-line no-console
-      console.log("[portal] response bruto do BFF", {
-        url,
-        status: response.status,
-        bodyKeys: body && typeof body === "object" ? Object.keys(body) : typeof body,
-        body,
-      });
-    }
-
     // Defesa: se o BFF passou o envelope da ArthosMFA cru (BFF antigo, ou request
     // direto à ArthosMFA), desembrulha aqui antes das demais transformações.
     if (isArthosEnvelope(body)) {
-      // eslint-disable-next-line no-console
-      console.log("[portal] envelope ArthosMFA detectado — desembrulhando", body);
       body = body.data;
       response.data = body;
     }
@@ -133,8 +121,6 @@ apiClient.interceptors.response.use(
     if (isEnvelope(body)) {
       if (isAuth) {
         response.data = mergeAuth(body as ApiEnvelope<Partial<LoginResponse>>);
-        // eslint-disable-next-line no-console
-        console.log("[portal] mergeAuth aplicado — LoginResponse final:", response.data);
       } else {
         if (!body.success) {
           throw new ApiError(
@@ -145,18 +131,14 @@ apiClient.interceptors.response.use(
         }
         response.data = body.data;
       }
-    } else if (isAuth) {
-      // eslint-disable-next-line no-console
-      console.log("[portal] body de auth NÃO é envelope BFF nem ArthosMFA — vai direto pra auth.ts", body);
     }
     return response;
   },
   (error: AxiosError) => {
-    // eslint-disable-next-line no-console
+    // Só metadados: o corpo e os headers podem conter token ou senha.
     console.error("[portal] erro axios", {
       url: error.config?.url,
       status: error.response?.status,
-      data: error.response?.data,
       message: error.message,
     });
     if (error.response?.status === 401) {

@@ -12,7 +12,7 @@ import type {
 /**
  * Consultas ao CorporateData (via proxy do BFF).
  *
- * O BFF encaminha ao endpoint público `https://corporatedata.rmtecho.com.br/api/…`
+ * O BFF encaminha ao endpoint público `https://corporatedata.portalargus.com.br/api/…`
  * repassando o Bearer do admin logado. As formas dos campos (nome/razaoSocial/…)
  * são tolerantes — o CorporateData retorna JSON livre e a UI escolhe o rótulo
  * mais amigável disponível.
